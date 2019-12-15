@@ -7,7 +7,7 @@ class App
 
     case request.path_info
     when '/time'
-      response = TimeFormat.new(request.params)
+      response = TimeFormatter.new(request.params)
 
       if response.unknown_formats.empty?
         http_response(200, Time.now.strftime(response.time_format))
