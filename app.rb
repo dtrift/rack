@@ -1,24 +1,32 @@
+require_relative 'time_formatter'
+
 class App
+
   def call(env)
-    perform_request
-    [status, headers, body]
+    request = Rack::Request.new(env)
+
+    case request.path_info
+    when '/time'
+      response = TimeFormat.new(request.params)
+
+      if response.unknown_formats.empty?
+        http_response(200, Time.now.strftime(response.time_format))
+      else
+        http_response(400, "Unknown format #{response.unknown_formats}")
+      end
+    else
+      http_response(404, 'Not Found')
+    end
   end
 
   private
 
-  def perform_request
-    sleep rand(1..4)
+  def http_response(status, body)
+    [
+      status,
+      { 'Content-Type' => 'text/plain' },
+      [body]
+    ]
   end
 
-  def status
-    200
-  end
-
-  def headers
-    { 'Content-Type' => 'text/plain' }
-  end
-
-  def body
-    ["Welcome aboard!\n"]
-  end
 end
